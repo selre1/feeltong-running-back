@@ -1,0 +1,46 @@
+{
+  "name": "feeltong-running-back",
+  "version": "1.0.0",
+  "description": "Feelton Running Web Service",
+  "author": "bhb",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "nodemon",
+    "build": "tsc && tsc-alias",
+    "serve": "TZ='Asia/Seoul' node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.33.0",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
+    "@types/express-session": "^1.18.2",
+    "connect-mongo": "^6.0.0",
+    "connect-redis": "^9.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.3.2",
+    "express-session": "^1.19.0",
+    "jose": "^6.2.2",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.4.1",
+    "multer": "^2.1.1",
+    "redis": "^5.11.0",
+    "socket.io": "^4.8.3",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.15.29",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.9.3",
+    "tsc-alias": "^1.8.16"
+  }
+}
