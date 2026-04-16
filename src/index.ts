@@ -11,6 +11,8 @@ connectDatabase(mongoUrl);
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 app.use(express.json());
 app.use(corsMiddleware);
 app.use(sessionMiddleware);
