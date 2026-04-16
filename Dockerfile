@@ -5,7 +5,7 @@ WORKDIR /app
 RUN npm install -g pnpm@10.33.0
 
 COPY pnpm-lock.yaml .
-COPY pnpm fetch
+RUN pnpm fetch
 
 COPY . .
 RUN pnpm install --offline
