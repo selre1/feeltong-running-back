@@ -2,7 +2,7 @@ name: Build & Push Back Image to GHCR
 
 on:
   push:
-    branches: ["mater"]
+    branches: ["master"]
     tags: [ "v*.*.*" ]
   workflow_dispatch:
 
