@@ -19,7 +19,8 @@ export const sessionMiddleware = expresssession({
   saveUninitialized: false,
   cookie: {
     maxAge: 1000 * 60 * 60 * 24 * 7,
-    sameSite: "lax",
+    httpOnly: true,
+    sameSite: nodeEnv === "production" ? "none" : "lax",
     secure: nodeEnv === "production",
   },
   store: sessionStore
