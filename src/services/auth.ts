@@ -93,7 +93,7 @@ export const signUp: RequestHandler = async (req, res) => {
 export const session: RequestHandler = async (req, res) => {
   const user = req.session.user;
   if (!user) {
-    res.status(401).json({ message: "Unauthorized" });
+    res.status(200).json({ user: null });
     return;
   }
   res.status(200).json({ user });
