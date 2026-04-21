@@ -1,8 +1,7 @@
 import { WebSocketServer, WebSocket } from "ws";
 import type { Server } from "http";
-import type { IncomingMessage } from "http";
-import { sessionMiddleware } from "@/middlewares/session";
 import { chatMessageModel, meetingRoomModel } from "@/modules/stores/mongo";
+import { consumeWsToken } from "@/modules/wsTokenStore";
 import { Types } from "mongoose";
 
 const HISTORY_LIMIT = 30;
@@ -35,22 +34,6 @@ function broadcastExcept(clients: RoomClients, exclude: AuthenticatedWS, data: o
   });
 }
 
-function resolveSession(
-  req: IncomingMessage,
-): Promise<{ id: string; email: string; nickname: string } | null> {
-  return new Promise((resolve) => {
-    const mockRes: any = {
-      getHeader: () => undefined,
-      setHeader: () => {},
-      on: () => {},
-      end: () => {},
-    };
-    sessionMiddleware(req as any, mockRes, () => {
-      resolve((req as any).session?.user ?? null);
-    });
-  });
-}
-
 async function getMemberCount(roomId: string): Promise<number> {
   try {
     const room = await meetingRoomModel.findById(roomId).select("members").lean();
@@ -63,16 +46,18 @@ async function getMemberCount(roomId: string): Promise<number> {
 export function setupRoomsWS(server: Server) {
   const wss = new WebSocketServer({ noServer: true });
 
-  server.on("upgrade", async (req, socket, head) => {
-    const match = req.url?.match(/^\/ws\/rooms\/([^/?]+)/);
+  server.on("upgrade", (req, socket, head) => {
+    const url = new URL(req.url ?? "", "http://localhost");
+    const match = url.pathname.match(/^\/ws\/rooms\/([^/?]+)/);
     if (!match) {
       socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
       socket.destroy();
       return;
     }
     const roomId = match[1];
+    const token = url.searchParams.get("token") ?? "";
+    const user = consumeWsToken(token);
 
-    const user = await resolveSession(req);
     if (!user) {
       socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
       socket.destroy();
@@ -81,7 +66,7 @@ export function setupRoomsWS(server: Server) {
 
     wss.handleUpgrade(req, socket, head, (ws) => {
       const authWS = ws as AuthenticatedWS;
-      authWS.userId = user.id;
+      authWS.userId = user.userId;
       authWS.nickname = user.nickname;
       authWS.roomId = roomId;
       wss.emit("connection", authWS);
