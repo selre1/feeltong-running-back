@@ -6,7 +6,9 @@ import { corsMiddleware } from "./middlewares/cors";
 import { connectDatabase } from "./modules/stores/mongo";
 import { sessionMiddleware } from "./middlewares/session";
 import { authRouter, homeRouter, runsRouter, roomsRouter } from "./routes";
-import { setupRoomsWS } from "./websocket/rooms";
+import { registerWsUpgrade } from "./middlewares/wsAuth";
+import { setupRoomsWSHandlers } from "./services/roomsWS";
+import { WebSocketServer } from "ws";
 
 connectDatabase(mongoUrl);
 
@@ -32,7 +34,9 @@ app.get("/health", (req, res) => {
 });
 
 const serverHttp = http.createServer(app);
-setupRoomsWS(serverHttp);
+const wss = new WebSocketServer({ noServer: true });
+registerWsUpgrade(serverHttp, wss);
+setupRoomsWSHandlers(wss);
 
 serverHttp.listen(port, () => {
   console.log(`[Feeltong-running-back] server started on port ${port}`);
