@@ -2,7 +2,7 @@
   "name": "feeltong-running-back",
   "version": "1.0.0",
   "description": "Feelton Running Web Service",
-  "author": "bhb",
+  "author": "",
   "main": "src/index.js",
   "scripts": {
     "start": "nodemon",
@@ -11,7 +11,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.33.0",
   "dependencies": {
@@ -31,16 +30,18 @@
     "multer": "^2.1.1",
     "redis": "^5.11.0",
     "socket.io": "^4.8.3",
+    "ws": "^8.20.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^22.15.29",
+    "@types/ws": "^8.18.1",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.3",
-    "tsc-alias": "^1.8.16"
+    "typescript": "^5.9.3"
   }
 }

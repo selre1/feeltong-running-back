@@ -4,6 +4,36 @@ type InferSchemaType<T> = mongoose.InferSchemaType<T> & {
   _id: Types.ObjectId;
 };
 
+const meetingRoomSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    description: { type: String, required: true, default: "" },
+    creatorId: { type: String, required: true },
+    creatorNickname: { type: String, required: true },
+    members: [
+      {
+        userId: { type: String, required: true },
+        nickname: { type: String, required: true },
+      },
+    ],
+  },
+  { timestamps: true },
+);
+
+export const meetingRoomModel = model("MeetingRoom", meetingRoomSchema);
+export type MeetingRoom = InferSchemaType<typeof meetingRoomSchema>;
+
+const chatMessageSchema = new Schema({
+  roomId: { type: Types.ObjectId, required: true, index: true },
+  senderId: { type: String, required: true },
+  senderNickname: { type: String, required: true },
+  content: { type: String, required: true },
+  sentAt: { type: Date, required: true, index: { expires: "90d" } },
+});
+
+export const chatMessageModel = model("ChatMessage", chatMessageSchema);
+export type ChatMessage = InferSchemaType<typeof chatMessageSchema>;
+
 const runRecordSchema = new Schema(
   {
     userId: { type: String, required: true, index: true },
