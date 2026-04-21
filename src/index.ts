@@ -6,7 +6,7 @@ import { corsMiddleware } from "./middlewares/cors";
 import { connectDatabase } from "./modules/stores/mongo";
 import { sessionMiddleware } from "./middlewares/session";
 import { authRouter, homeRouter, runsRouter, roomsRouter } from "./routes";
-import { setupRoomsWS } from "./ws/rooms";
+import { setupRoomsWS } from "./websocket/rooms";
 
 connectDatabase(mongoUrl);
 
