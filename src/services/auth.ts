@@ -2,6 +2,7 @@ import type { RequestHandler } from "express";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { supabase } from "../loadenv";
+import { runRecordModel, meetingRoomModel, chatMessageModel } from "../modules/stores/mongo";
 
 const authPayloadSchema = z.object({
   email: z.string().email(),
@@ -19,6 +20,12 @@ const supabaseClient = createClient(supabase.url, supabase.anonKey, {
     detectSessionInUrl: false,
   },
 });
+
+const supabaseAdminClient = supabase.serviceRoleKey
+  ? createClient(supabase.url, supabase.serviceRoleKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    })
+  : null;
 
 type SupabaseAuthUser = {
   email?: string | null;
@@ -106,6 +113,56 @@ export const logout: RequestHandler = async (req, res) => {
       return;
     }
 
+    res.clearCookie("running.sid");
+    res.status(200).json({ ok: true });
+  });
+};
+
+export const withdraw: RequestHandler = async (req, res) => {
+  if (!supabaseAdminClient) {
+    res.status(500).json({ message: "Server configuration error: SUPABASE_SERVICE_ROLE_KEY missing" });
+    return;
+  }
+
+  const userId = req.user!.id;
+
+  try {
+    // 러닝 기록 삭제
+    await runRecordModel.deleteMany({ userId });
+
+    // 내가 만든 방의 채팅 메시지 삭제 후 방 삭제
+    const createdRooms = await meetingRoomModel.find({ creatorId: userId }, "_id");
+    if (createdRooms.length > 0) {
+      const createdRoomIds = createdRooms.map((r) => r._id);
+      await chatMessageModel.deleteMany({ roomId: { $in: createdRoomIds } });
+      await meetingRoomModel.deleteMany({ creatorId: userId });
+    }
+
+    // 참여 중인 다른 방에서 멤버 제거
+    await meetingRoomModel.updateMany(
+      { "members.userId": userId },
+      { $pull: { members: { userId } } },
+    );
+
+    // 내가 보낸 채팅 메시지 삭제
+    await chatMessageModel.deleteMany({ senderId: userId });
+
+    // Supabase auth 계정 삭제
+    const { error } = await supabaseAdminClient.auth.admin.deleteUser(userId);
+    if (error) {
+      res.status(500).json({ message: error.message });
+      return;
+    }
+  } catch {
+    res.status(500).json({ message: "Withdrawal failed" });
+    return;
+  }
+
+  req.session.destroy((err) => {
+    if (err) {
+      res.status(500).json({ message: "Session cleanup failed" });
+      return;
+    }
     res.clearCookie("running.sid");
     res.status(200).json({ ok: true });
   });

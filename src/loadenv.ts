@@ -31,6 +31,7 @@ export const sessionSecret = process.env.SESSION_SECRET;
 export const supabase = {
   url: process.env.SUPABASE_URL,
   anonKey: process.env.SUPABASE_ANON_KEY,
+  serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
   issuer: `${process.env.SUPABASE_URL}/auth/v1`,
   // Backward compatibility for an easy typo.
   jwksUrl:
